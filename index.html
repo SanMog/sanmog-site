@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta property="og:title" content="Александр Могилин: автоматизация бизнеса с ИИ">
+<meta property="og:description" content="Бот отвечает клиентам, заявки не теряются, реклама без съемки.">
+<meta property="og:image" content="https://sanmog.ru/media/photo.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%230E1014%22/%3E%3Cpath d=%22M9 22 16 9l7 13%22 stroke=%22%23D6B270%22 stroke-width=%223%22 fill=%22none%22/%3E%3C/svg%3E">
+<title>Александр Могилин</title>
+<meta name="description" content="Автоматизация для малого бизнеса: бот отвечает клиентам, звонки и база клиентов, сбор цен, реклама без съемки.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: короткая страница из пяти полос; герой с фото и уведомлением, схема пути заявки как главная инфографика. Один тёмный образ, осознанно. */
+:root{
+  --ink:#0E1014; --surface:#161A20; --raise:#1D222A; --line:#2A3039;
+  --fg:#ECE7DE; --muted:#9C978E; --gold:#D6B270; --gold-soft:rgba(214,178,112,.14); --ok:#7FC9A0;
+  --f-display:"Unbounded","Onest",system-ui,sans-serif;
+  --f-body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--fg);font:400 17px/1.6 var(--f-body);margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto}
+section{padding-block:clamp(48px,8vw,92px);border-top:1px solid var(--line)}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(26px,3.6vw,40px);line-height:1.15;margin-bottom:32px}
+.eyebrow{font:500 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+svg.i{width:28px;height:28px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:rgba(14,16,20,.88);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)))}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px max(16px,env(safe-area-inset-left,0px))}
+.brand{font:700 15px/1 var(--f-display)}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#17130B;text-decoration:none;
+  font:600 16px/1 var(--f-body);padding:15px 22px;border-radius:999px;border:0;cursor:pointer;transition:transform .15s,background .15s}
+.btn:hover{background:#E4C489;transform:translateY(-1px)}
+.btn.small{padding:10px 16px;font-size:14px}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--gold)}
+
+/* hero */
+.hero{border-top:0;padding-block:clamp(36px,6vw,80px)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(28px,5vw,64px);align-items:center}
+.hero h1{font-size:clamp(34px,5.4vw,62px);line-height:1.05;margin:0 0 20px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{font-size:clamp(17px,1.6vw,20px);color:var(--muted);max-width:42ch;margin:0 0 30px}
+.who{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.who img{width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+.who b{display:block;font-weight:600}
+.who small{color:var(--muted);font-size:14px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.visual{position:relative;max-width:420px;justify-self:end;width:100%}
+.visual .photo{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 30%;border-radius:20px;display:block}
+.notif{position:absolute;left:-28px;bottom:28px;width:min(300px,88%);background:var(--raise);border:1px solid var(--line);
+  border-radius:16px;padding:14px 16px;box-shadow:0 20px 50px rgba(0,0,0,.45);animation:rise .7s .2s both}
+.notif .row{display:flex;justify-content:space-between;font:500 11px/1 var(--f-mono);color:var(--muted);margin-bottom:10px}
+.notif .row b{color:var(--ok);font-weight:500}
+.notif p{margin:0;font-size:14px;line-height:1.45}
+.notif .tag{display:inline-block;margin-top:10px;font:500 11px/1 var(--f-mono);color:var(--gold);background:var(--gold-soft);padding:6px 8px;border-radius:6px}
+@keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.notif{animation:none}}
+
+/* flow infographic */
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:relative}
+.flow .st{position:relative;padding:0 18px 0 0;min-width:0}
+.flow .dot{width:64px;height:64px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;position:relative;z-index:1;margin-bottom:18px}
+.flow .st:last-child .dot{background:var(--gold-soft);border-color:var(--gold)}
+.flow .st:not(:last-child)::after{content:"";position:absolute;top:32px;left:64px;right:0;height:1px;
+  background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 12px);opacity:.6}
+.flow b{display:block;font-size:18px;margin-bottom:6px}
+.flow span{color:var(--muted);font-size:15px}
+.flow .t{font:500 12px/1 var(--f-mono);color:var(--gold);display:block;margin-bottom:8px}
+
+/* services */
+.svc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.svc article{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.svc h3{font:600 18px/1.3 var(--f-body)}
+.svc p{margin:0;color:var(--muted);font-size:15px}
+.svc .sum{margin-top:auto;font:500 15px/1 var(--f-mono);color:var(--gold);padding-top:6px}
+
+/* works */
+.works{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.work{min-width:0;display:flex;flex-direction:column;gap:10px}
+.work video{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:block}
+.work h3{font:600 17px/1.3 var(--f-body)}
+.work p{margin:0;color:var(--muted);font-size:15px}
+
+/* why + how */
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,40px);margin-bottom:56px}
+.facts div{min-width:0}
+.facts strong{display:block;font:700 clamp(24px,2.8vw,34px)/1.1 var(--f-display);color:var(--gold);margin-bottom:10px}
+.facts p{margin:0;color:var(--muted)}
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;list-style:none;margin:0;padding:0;counter-reset:s}
+.how li{counter-increment:s;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
+.how li::before{content:counter(s);font:500 13px/1 var(--f-mono);color:var(--gold);display:block;margin-bottom:10px}
+.how b{display:block;margin-bottom:4px}
+.how span{color:var(--muted);font-size:15px}
+
+/* contact */
+.contact .wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:center}
+.contact p{color:var(--muted);margin:0}
+.handle{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:20px}
+.handle code{font:500 18px/1 var(--f-mono);background:var(--surface);border:1px solid var(--line);padding:12px 14px;border-radius:10px;user-select:all}
+footer{border-top:1px solid var(--line);padding-block:26px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+@media (max-width:960px){
+  .svc{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr}
+  .visual{justify-self:start;max-width:360px}
+  .notif{left:auto;right:-8px}
+  .contact .wrap{grid-template-columns:1fr}
+  .flow{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:32px}
+  .flow .st:nth-child(2)::after{display:none}
+}
+@media (max-width:640px){
+  .svc,.facts,.how,.works{grid-template-columns:1fr}
+  .works .work video{aspect-ratio:4/5}
+  .flow{grid-template-columns:1fr;row-gap:0}
+  .flow .st{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;padding:0 0 26px}
+  .flow .st:not(:last-child)::after{display:block;top:64px;bottom:0;left:32px;right:auto;width:1px;height:auto;
+    background:repeating-linear-gradient(180deg,var(--gold) 0 6px,transparent 6px 12px)}
+  .flow .st:nth-child(2)::after{display:block}
+  .flow .dot{margin:0}
+  .notif{right:8px;bottom:16px}
+}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">Александр Могилин</div>
+    <a class="btn small" href="https://t.me/SanMog" target="_blank" rel="noopener">Написать</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="who"><img src="media/photo_s.jpg" alt="Александр Могилин"><div><b>Александр Могилин</b><small>Санкт-Петербург, работаю удаленно</small></div></div>
+      <h1>Автоматизирую бизнес с помощью <em>ИИ</em></h1>
+      <p>Чтобы заявки не терялись, клиенты получали ответ сразу, а вы занимались делом, а не перепиской.</p>
+      <div class="cta-row">
+        <a class="btn" href="https://t.me/SanMog" target="_blank" rel="noopener">Обсудить в Telegram</a>
+        <a class="btn ghost" href="#works">Примеры</a>
+      </div>
+    </div>
+    <div class="visual">
+      <img class="photo" src="media/photo.jpg" alt="">
+      <div class="notif" aria-label="Пример уведомления о заявке">
+        <div class="row"><span>НОВАЯ ЗАЯВКА · 23:41</span><b>● бот</b></div>
+        <p>Ирина, салон красоты. Хочет записывать клиентов онлайн, сейчас теряет заявки ночью.</p>
+        <span class="tag">готова купить · бюджет 15 000 ₽</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="wrap">
+    <div class="eyebrow">Как это работает</div>
+    <h2>Клиент пишет в 23:41, а заявка уже у вас</h2>
+    <div class="flow">
+      <div class="st"><div class="dot"><svg class="i"><use href="#i-chat"/></svg></div><div><span class="t">23:41</span><b>Клиент пишет</b><span>На сайт, в Telegram или в соцсети, в любое время.</span></div></div>
+      <div class="st"><div class="dot"><svg class="i"><use href="#i-bolt"/></svg></div><div><span class="t">через 10 сек</span><b>Бот отвечает</b><span>Здоровается, отвечает на вопросы, предлагает время.</span></div></div>
+      <div class="st"><div class="dot"><svg class="i"><use href="#i-filter"/></svg></div><div><span class="t">2 минуты</span><b>Узнает главное</b><span>Что нужно, когда и какой бюджет.</span></div></div>
+      <div class="st"><div class="dot"><svg class="i"><use href="#i-bell"/></svg></div><div><span class="t">утро</span><b>Заявка у вас</b><span>Готовый клиент в телефоне, осталось позвонить.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="eyebrow">Что делаю</div>
+    <h2>Четыре задачи, которые забирают ваше время</h2>
+    <div class="svc">
+      <article><svg class="i"><use href="#i-chat"/></svg><h3>Бот, который отвечает клиентам</h3><p>Отвечает, записывает и собирает заявки днем и ночью.</p><div class="sum">от 10 000 ₽</div></article>
+      <article><svg class="i"><use href="#i-table"/></svg><h3>Цены конкурентов в таблице</h3><p>Цены, остатки и отзывы сами собираются в таблицу каждое утро.</p><div class="sum">от 10 000 ₽</div></article>
+      <article><svg class="i"><use href="#i-play"/></svg><h3>Реклама без съемки</h3><p>Ролики и фото товара, созданные нейросетью.</p><div class="sum">от 2 000 ₽</div></article>
+      <article><svg class="i"><use href="#i-phone"/></svg><h3>Звонки и база клиентов</h3><p>Все звонки записаны, все клиенты в одном месте, никто не забыт.</p><div class="sum">от 15 000 ₽</div></article>
+    </div>
+  </div>
+</section>
+
+<section id="works">
+  <div class="wrap">
+    <div class="eyebrow">Примеры</div>
+    <h2>Ролики без съемки и моделей</h2>
+    <div class="works">
+      <div class="work"><video src="media/reel.mp4" poster="media/reel.jpg" controls playsinline preload="none"></video><h3>Ювелирный бренд</h3><p>Кольца и серьги в дорогой подаче.</p></div>
+      <div class="work"><video src="media/coffee.mp4" poster="media/coffee.jpg" controls playsinline preload="none"></video><h3>Кофейня</h3><p>Короткий ролик для Reels.</p></div>
+      <div class="work"><video src="media/game.mp4" poster="media/game.jpg" controls playsinline preload="none"></video><h3>Мобильная игра</h3><p>Промо с атмосферой вечеринки.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="wrap">
+    <div class="eyebrow">Почему мне</div>
+    <h2>Сдаю то, что работает</h2>
+    <div class="facts">
+      <div><strong>6 лет в IT</strong><p>проверял программы банков и Госуслуг. Нахожу ошибки раньше ваших клиентов.</p></div>
+      <div><strong>Mango Office</strong><p>настраивал телефонию для компаний и связывал ее с базой клиентов.</p></div>
+      <div><strong>Wildberries</strong><p>сам вел магазин, знаю, сколько времени съедает рутина.</p></div>
+    </div>
+    <ol class="how">
+      <li><b>Созвон 30 минут</b><span>Бесплатно. Находим, где теряете время и деньги.</span></li>
+      <li><b>Цена заранее</b><span>Фиксированная, не растет по ходу работы.</span></li>
+      <li><b>Готово и проверено</b><span>Показываю на ваших данных, 2 недели поддержки.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Связаться</div>
+      <h2 style="margin-bottom:12px">Расскажите, что хотите упростить</h2>
+      <p>Отвечаю в течение пары часов. Работаю как самозанятый, с чеком.</p>
+      <div class="handle"><code id="tg">@SanMog</code><button class="btn ghost small" id="copy" type="button">Скопировать</button></div>
+    </div>
+    <a class="btn" href="https://t.me/SanMog" target="_blank" rel="noopener">Написать в Telegram</a>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><span>Александр Могилин</span><span>Санкт-Петербург</span></div></footer>
+
+<script>
+document.getElementById('copy').addEventListener('click',function(){
+  var b=this,t=document.getElementById('tg');
+  function done(){b.textContent='Скопировано';setTimeout(function(){b.textContent='Скопировать'},1600)}
+  function sel(){var r=document.createRange();r.selectNodeContents(t);var s=getSelection();s.removeAllRanges();s.addRange(r)}
+  try{navigator.clipboard.writeText('@SanMog').then(done,sel)}catch(e){sel()}
+});
+var vids=document.querySelectorAll('video');
+vids.forEach(function(v){v.addEventListener('play',function(){vids.forEach(function(o){if(o!==v&&!o.paused)o.pause()})})});
+</script>
+
+</body>
+</html>
